@@ -1,0 +1,6 @@
+{
+  "name": "Android SMS Manager & Architecture Studio",
+  "description": "Android SMS Inbox management architecture and automated bKash/Nagad payment verification gateway with Kotlin BroadcastReceiver, auto-matching engine, Room DB, and Play Store security compliance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
