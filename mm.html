@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin - GWR Tour</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --bg-dark: #0B0B15;
+            --card-bg: rgba(30, 30, 40, 0.7);
+            --border: rgba(255, 255, 255, 0.06);
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+            --success: #00C851;
+            --danger: #FF4444;
+            --warning: #FFBB33;
+            --deposit: #FF9800;
+            --neon: #00ff88;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        input, textarea, select {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
+        body {
+            background: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 80px;
+            background-image: radial-gradient(circle at 10% 20%, rgba(108,99,255,0.05) 0%, transparent 50%);
+        }
+        .admin-header {
+            background: rgba(11,11,21,0.85);
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+        .admin-logo {
+            font-weight: 800;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-dot {
+            width: 10px; height: 10px;
+            background: var(--neon);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--neon);
+        }
+        .logout-btn {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            background: rgba(255,68,68,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--danger);
+            transition: 0.3s;
+        }
+        .logout-btn:active { transform: scale(0.9); }
+        .section {
+            display: none;
+            padding: 24px;
+            animation: slideUp 0.35s ease;
+        }
+        .section.active { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #6C63FF, #4834D4);
+            padding: 28px;
+            border-radius: 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 30px -10px rgba(108,99,255,0.3);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .stat-val { font-size: 40px; font-weight: 800; letter-spacing: -1px; }
+        .stat-lbl { font-size: 14px; opacity: 0.85; font-weight: 600; margin-top: 4px; }
+        .grid-section-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin: 22px 0 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+        .dash-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .dash-item {
+            background: var(--card-bg);
+            padding: 22px 14px;
+            border-radius: 18px;
+            text-align: center;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            backdrop-filter: blur(6px);
+            transition: 0.2s;
+            position: relative;
+        }
+        .dash-item:active { transform: scale(0.94); background: rgba(255,255,255,0.03); }
+        .dash-icon-box {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        .dash-text { font-size: 13px; font-weight: 700; }
+        .badge {
+            position: absolute;
+            top: -4px; right: -4px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 22px; height: 22px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border: 2px solid var(--bg-dark);
+        }
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .flat-card {
+            background: var(--card-bg);
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(6px);
+        }
+        .fc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .fc-title { font-weight: 700; font-size: 16px; color: white; }
+        .fc-tag {
+            font-size: 10px;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .tag-yellow { background: rgba(255,187,51,0.12); color: var(--warning); border: 1px solid rgba(255,187,51,0.2); }
+        .tag-green { background: rgba(0,200,81,0.12); color: var(--success); border: 1px solid rgba(0,200,81,0.2); }
+        .tag-blue { background: rgba(51,181,229,0.12); color: #33B5E5; border: 1px solid rgba(51,181,229,0.2); }
+        .tag-orange { background: rgba(255,152,0,0.12); color: var(--deposit); border: 1px solid rgba(255,152,0,0.2); }
+        .tag-red { background: rgba(255,68,68,0.12); color: var(--danger); border: 1px solid rgba(255,68,68,0.2); }
+        .tag-neon { background: rgba(0,255,136,0.12); color: var(--neon); border: 1px solid rgba(0,255,136,0.2); }
+        .fc-detail {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .fc-value { color: var(--text-main); font-weight: 600; }
+        .fc-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+        .fc-actions-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+        .cat-card-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .cat-img {
+            width: 50px; height: 50px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+        }
+        .cat-actions { display: flex; gap: 8px; }
+        .btn {
+            padding: 10px;
+            border-radius: 12px;
+            border: none;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.15s;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-primary { background: var(--primary); box-shadow: 0 4px 15px rgba(108,99,255,0.25); }
+        .btn-danger { background: rgba(255,68,68,0.12); color: var(--danger); border: 1px solid rgba(255,68,68,0.2); }
+        .btn-success { background: rgba(0,200,81,0.12); color: var(--success); border: 1px solid rgba(0,200,81,0.2); }
+        .btn-warning { background: rgba(255,152,0,0.12); color: var(--deposit); border: 1px solid rgba(255,152,0,0.2); }
+        .btn-gold { background: rgba(255,187,51,0.15); color: var(--warning); border: 1px solid rgba(255,187,51,0.2); }
+        .btn-neon { background: rgba(0,255,136,0.12); color: var(--neon); border: 1px solid rgba(0,255,136,0.2); }
+        .btn-ban { background: rgba(255,68,68,0.2); color: var(--danger); border: 1px solid rgba(255,68,68,0.3); }
+        .btn-unban { background: rgba(0,200,81,0.15); color: var(--success); border: 1px solid rgba(0,200,81,0.2); }
+        .form-group { margin-bottom: 18px; }
+        .form-label {
+            display: block;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-input {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 13px 16px;
+            border-radius: 12px;
+            outline: none;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+        .form-input:focus {
+            border-color: var(--primary);
+            background: rgba(255,255,255,0.07);
+            box-shadow: 0 0 0 4px rgba(108,99,255,0.1);
+        }
+        .form-input-sm { padding: 8px 12px; font-size: 13px; }
+        .back-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 22px;
+            cursor: pointer;
+            padding: 6px 0;
+        }
+        .back-nav:active { opacity: 0.6; }
+        #auth-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #05050a;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(20px);
+        }
+        .pin-title {
+            margin-bottom: 28px;
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: 3px;
+            color: var(--neon);
+            text-transform: uppercase;
+            text-shadow: 0 0 30px rgba(0,255,136,0.2);
+        }
+        .pin-dots {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 45px;
+        }
+        .dot {
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            transition: 0.2s cubic-bezier(0.175,0.885,0.32,1.275);
+        }
+        .dot.filled {
+            background: var(--neon);
+            box-shadow: 0 0 20px var(--neon);
+            transform: scale(1.2);
+        }
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 80px);
+            gap: 20px;
+        }
+        .num-key {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: 0.08s;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .num-key:active {
+            background: var(--neon);
+            transform: scale(0.88);
+            box-shadow: 0 0 30px rgba(0,255,136,0.2);
+        }
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px; height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 12px 30px rgba(108,99,255,0.35);
+            cursor: pointer;
+            z-index: 90;
+            transition: 0.2s;
+        }
+        .fab:active { transform: scale(0.88) rotate(90deg); }
+        .search-box {
+            position: relative;
+            margin-bottom: 22px;
+        }
+        .search-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+        .search-input {
+            padding-left: 44px;
+            border-radius: 30px;
+        }
+        .swal2-popup {
+            background: #16161f !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 20px !important;
+        }
+        .swal2-title { color: white !important; }
+        .swal2-input, .swal2-textarea, .swal2-select {
+            background: rgba(255,255,255,0.04) !important;
+            border: 1px solid var(--border) !important;
+            color: white !important;
+            border-radius: 12px !important;
+        }
+        .swal2-confirm { background: var(--primary) !important; border-radius: 12px !important; }
+        .swal2-cancel { background: rgba(255,68,68,0.1) !important; color: var(--danger) !important; border-radius: 12px !important; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 6px; }
+
+        /* ===== PRIZE DISTRIBUTION ===== */
+        .prize-container {
+            max-height: 55vh;
+            overflow-y: auto;
+            padding: 4px;
+        }
+        .prize-container::-webkit-scrollbar { width: 3px; }
+        .prize-container::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 6px; }
+        .prize-row {
+            display: grid;
+            grid-template-columns: 30px 1fr 80px 80px 80px 80px 40px;
+            gap: 8px;
+            align-items: center;
+            padding: 8px 4px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        .prize-row.header {
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+            position: sticky;
+            top: 0;
+            background: #16161f;
+            z-index: 5;
+        }
+        .prize-row .p-name { color: white; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .prize-row .p-total { color: var(--neon); font-weight: 700; text-align: right; }
+        .prize-row .p-kill-input {
+            width: 60px;
+            padding: 4px 6px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: white;
+            text-align: center;
+            font-size: 13px;
+        }
+        .prize-row .p-kill-input:focus { border-color: var(--neon); outline: none; }
+        .prize-row .p-top5-check { width: 18px; height: 18px; accent-color: var(--warning); cursor: pointer; }
+        .prize-row .p-rank-input {
+            width: 50px;
+            padding: 4px 6px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: white;
+            text-align: center;
+            font-size: 13px;
+        }
+        .prize-row .p-rank-input:focus { border-color: var(--neon); outline: none; }
+        .prize-summary {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .prize-summary .total-label { color: var(--text-muted); }
+        .prize-summary .total-amount { color: var(--neon); font-size: 20px; text-shadow: 0 0 20px rgba(0,255,136,0.2); }
+        .prize-actions { display: flex; gap: 12px; margin-top: 16px; }
+        .prize-actions .btn { flex: 1; padding: 14px; font-size: 14px; }
+
+        .match-type-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .match-type-badge.br { background: rgba(255,68,68,0.15); color: var(--danger); border: 1px solid rgba(255,68,68,0.2); }
+        .match-type-badge.cs { background: rgba(51,181,229,0.15); color: #33B5E5; border: 1px solid rgba(51,181,229,0.2); }
+        .match-type-badge.lone { background: rgba(255,187,51,0.15); color: var(--warning); border: 1px solid rgba(255,187,51,0.2); }
+
+        .prize-config {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 16px;
+            padding: 14px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        .prize-config .config-item { display: flex; flex-direction: column; gap: 4px; }
+        .prize-config .config-item label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .prize-config .config-item input {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            padding: 8px 12px;
+            font-size: 14px;
+            width: 100%;
+            outline: none;
+        }
+        .prize-config .config-item input:focus { border-color: var(--neon); }
+
+        .rank-prize-table {
+            margin: 10px 0 16px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .rank-prize-table .rp-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 80px;
+            gap: 10px;
+            padding: 4px 0;
+            font-size: 13px;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .rank-prize-table .rp-row:last-child { border-bottom: none; }
+        .rank-prize-table .rp-row .rp-rank { color: var(--text-muted); font-weight: 600; }
+        .rank-prize-table .rp-row .rp-label { color: var(--text-muted); }
+        .rank-prize-table .rp-row .rp-amount { color: var(--warning); font-weight: 700; text-align: right; }
+
+        .add-player-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(0,200,81,0.12);
+            color: var(--success);
+            border: 1px solid rgba(0,200,81,0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+        .add-player-btn:active { transform: scale(0.95); }
+        .remove-player-btn {
+            background: rgba(255,68,68,0.1);
+            color: var(--danger);
+            border: none;
+            border-radius: 6px;
+            padding: 2px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .remove-player-btn:active { transform: scale(0.9); }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-badge.active { background: rgba(0,200,81,0.15); color: var(--success); border: 1px solid rgba(0,200,81,0.2); }
+        .status-badge.banned { background: rgba(255,68,68,0.15); color: var(--danger); border: 1px solid rgba(255,68,68,0.2); }
+    </style>
+</head>
+<body>
+
+    <div id="auth-overlay">
+        <div class="pin-title">🔐 ADMIN ACCESS</div>
+        <div class="pin-dots" id="pin-dots">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+        <div class="numpad">
+            <div class="num-key" onclick="typePin(1)">1</div>
+            <div class="num-key" onclick="typePin(2)">2</div>
+            <div class="num-key" onclick="typePin(3)">3</div>
+            <div class="num-key" onclick="typePin(4)">4</div>
+            <div class="num-key" onclick="typePin(5)">5</div>
+            <div class="num-key" onclick="typePin(6)">6</div>
+            <div class="num-key" onclick="typePin(7)">7</div>
+            <div class="num-key" onclick="typePin(8)">8</div>
+            <div class="num-key" onclick="typePin(9)">9</div>
+            <div class="num-key" style="background:transparent;border:none;cursor:default;"></div>
+            <div class="num-key" onclick="typePin(0)">0</div>
+            <div class="num-key" onclick="delPin()" style="color:var(--danger)"><i class="fas fa-backspace"></i></div>
+        </div>
+    </div>
+
+    <div class="admin-header">
+        <div class="admin-logo"><span class="logo-dot"></span> GWR.ADMIN</div>
+        <div class="logout-btn" onclick="location.reload()"><i class="fas fa-power-off"></i></div>
+    </div>
+
+    <section id="sec-dashboard" class="section active">
+        <div class="stat-card">
+            <div class="stat-val" id="stat-users">0</div>
+            <div class="stat-lbl">Total Registered Users</div>
+        </div>
+        <div class="grid-section-title">Core Modules</div>
+        <div class="dash-grid">
+            <div class="dash-item" onclick="navTo('matches')">
+                <div class="dash-icon-box" style="background:rgba(108,99,255,0.12);color:var(--primary);"><i class="fas fa-gamepad"></i></div>
+                <div class="dash-text">Matches</div>
+            </div>
+            <div class="dash-item" onclick="navTo('categories')">
+                <div class="dash-icon-box" style="background:rgba(51,181,229,0.12);color:#33B5E5;"><i class="fas fa-layer-group"></i></div>
+                <div class="dash-text">Categories</div>
+            </div>
+            <div class="dash-item" onclick="navTo('users')">
+                <div class="dash-icon-box" style="background:rgba(0,200,81,0.12);color:var(--success);"><i class="fas fa-users"></i></div>
+                <div class="dash-text">Users</div>
+            </div>
+            <div class="dash-item" onclick="navTo('deposits')" style="position:relative;">
+                <div class="dash-icon-box" style="background:rgba(255,152,0,0.12);color:var(--deposit);"><i class="fas fa-plus-circle"></i></div>
+                <div class="dash-text">Deposits</div>
+                <span class="badge" id="deposit-badge" style="display:none;">0</span>
+            </div>
+            <div class="dash-item" onclick="navTo('withdraw')">
+                <div class="dash-icon-box" style="background:rgba(255,68,68,0.12);color:var(--danger);"><i class="fas fa-wallet"></i></div>
+                <div class="dash-text">Withdrawals</div>
+            </div>
+            <div class="dash-item" onclick="navTo('promo')">
+                <div class="dash-icon-box" style="background:rgba(255,187,51,0.12);color:var(--warning);"><i class="fas fa-ticket-alt"></i></div>
+                <div class="dash-text">Promo Codes</div>
+            </div>
+        </div>
+        <div class="grid-section-title">Configuration</div>
+        <div class="dash-grid">
+            <div class="dash-item" onclick="navTo('settings')">
+                <div class="dash-icon-box" style="background:rgba(255,187,51,0.12);color:var(--warning);"><i class="fas fa-sliders-h"></i></div>
+                <div class="dash-text">App Settings</div>
+            </div>
+            <div class="dash-item" onclick="navTo('sliders')">
+                <div class="dash-icon-box" style="background:rgba(68,138,255,0.12);color:#448AFF;"><i class="fas fa-images"></i></div>
+                <div class="dash-text">Sliders</div>
+            </div>
+            <div class="dash-item" onclick="navTo('notify')">
+                <div class="dash-icon-box" style="background:rgba(224,64,251,0.12);color:#E040FB;"><i class="fas fa-paper-plane"></i></div>
+                <div class="dash-text">Notify</div>
+            </div>
+            <div class="dash-item" onclick="changeAdminPinPopup()">
+                <div class="dash-icon-box" style="background:rgba(255,23,68,0.12);color:#FF1744;"><i class="fas fa-key"></i></div>
+                <div class="dash-text">Change PIN</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="sec-categories" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Dashboard</div>
+        <div class="list-container" id="category-list"><div style="text-align:center;padding:30px;color:var(--text-muted);">Loading...</div></div>
+        <div class="fab" onclick="addCategory()"><i class="fas fa-plus"></i></div>
+    </section>
+
+    <section id="sec-matches" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Dashboard</div>
+        <div class="list-container" id="match-list"><div style="text-align:center;padding:30px;color:var(--text-muted);">Loading...</div></div>
+        <div class="fab" onclick="createMatchPopup()"><i class="fas fa-plus"></i></div>
+    </section>
+
+    <section id="sec-users" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Dashboard</div>
+        <div class="search-box"><i class="fas fa-search"></i><input type="text" id="user-search" class="form-input search-input" placeholder="Search user..." onkeyup="filterUsers()"></div>
+        <div class="list-container" id="user-list"></div>
+    </section>
+
+    <section id="sec-deposits" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Dashboard</div>
+        <div class="grid-section-title">Pending Deposit Requests</div>
+        <div class="list-container" id="deposit-list"></div>
+    </section>
+
+    <section id="sec-withdraw" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Dashboard</div>
+        <div class="list-container" id="withdraw-list"></div>
+    </section>
+
+    <section id="sec-promo" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Dashboard</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+            <span style="font-weight:700;font-size:16px;">🎫 Promo Codes</span>
+            <button class="btn btn-primary" style="padding:8px 18px;" onclick="createPromoCode()"><i class="fas fa-plus"></i> New</button>
+        </div>
+        <div class="list-container" id="promo-list"></div>
+    </section>
+
+    <section id="sec-settings" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Dashboard</div>
+        <div class="flat-card">
+            <h4 style="margin-bottom:18px;color:var(--primary);">General</h4>
+            <div class="form-group"><label class="form-label">App Name</label><input type="text" id="set-app-name" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Logo URL</label><input type="text" id="set-app-logo" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Category Title</label><input type="text" id="set-cat-title" class="form-input" placeholder="FREE FIRE"></div>
+            <div class="form-group"><label class="form-label">Marquee Notice</label><textarea id="set-notice" class="form-input" rows="2"></textarea></div>
+            <div class="form-group"><label class="form-label">Popup Text</label><textarea id="set-popup" class="form-input" rows="3"></textarea></div>
+            <div class="form-group"><label class="form-label">Show Popup</label><select id="set-show-popup" class="form-input"><option value="true">Yes</option><option value="false">No</option></select></div>
+        </div>
+        <div class="flat-card" style="margin-top:18px;">
+            <h4 style="margin-bottom:18px;color:var(--success);">Payment Numbers</h4>
+            <div class="form-group"><label class="form-label">bKash</label><input type="number" id="set-bkash" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Nagad</label><input type="number" id="set-nagad" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Rocket</label><input type="number" id="set-rocket" class="form-input"></div>
+        </div>
+        <div class="flat-card" style="margin-top:18px;">
+            <h4 style="margin-bottom:18px;color:#448AFF;">Links & Videos</h4>
+            <div class="form-group"><label class="form-label">Support</label><input type="text" id="set-support" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Shop</label><input type="text" id="set-shop" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Add Money (Video)</label><input type="text" id="set-vid-add" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Join Match (Video)</label><input type="text" id="set-vid-join" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Room ID (Video)</label><input type="text" id="set-vid-room" class="form-input"></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;padding:16px;margin-top:20px;" onclick="saveSettings()">💾 SAVE ALL</button>
+    </section>
+
+    <section id="sec-sliders" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Dashboard</div>
+        <div class="list-container" id="slider-list"></div>
+        <div class="flat-card" style="margin-top:18px;">
+            <h4 style="margin-bottom:14px;">Add Banner</h4>
+            <div class="form-group"><input type="text" id="new-slider-img" class="form-input" placeholder="Image URL"></div>
+            <div class="form-group"><input type="text" id="new-slider-link" class="form-input" placeholder="Link (optional)"></div>
+            <button class="btn btn-primary" style="width:100%;" onclick="addSlider()">Add Banner</button>
+        </div>
+    </section>
+
+    <section id="sec-notify" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Dashboard</div>
+        <div class="flat-card">
+            <div class="form-group"><label class="form-label">Title</label><input type="text" id="notif-title" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Message</label><textarea id="notif-body" class="form-input" rows="4"></textarea></div>
+            <button class="btn btn-primary" style="width:100%;" onclick="sendNotification()"><i class="fas fa-paper-plane"></i> Send</button>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, push, update, remove, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzspu-bUwnUqV0KhCFQ8MPGm4dog5bcMQ",
+            authDomain: "gwr-tour-2664a.firebaseapp.com",
+            databaseURL: "https://gwr-tour-2664a-default-rtdb.firebaseio.com",
+            projectId: "gwr-tour-2664a",
+            storageBucket: "gwr-tour-2664a.firebasestorage.app",
+            messagingSenderId: "20373767568",
+            appId: "1:20373767568:web:d3d362a3ab717d5d09df15"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let allUsers = [], allCategories = [], currentAdminPin = "8888", pendingDeposits = [], allMatches = [], allParticipants = {};
+
+        const RANK_PRIZES = { 1: 100, 2: 70, 3: 50, 4: 30, 5: 20 };
+
+        onValue(ref(db, 'app_settings/admin_pin'), s => { if(s.exists()) currentAdminPin = String(s.val()); });
+
+        let pin = "";
+        window.typePin = (n) => {
+            if(pin.length < 4) { pin += n; updateDots(); }
+            if(pin === currentAdminPin) { document.getElementById('auth-overlay').style.display = 'none'; initAdmin(); }
+            else if(pin.length === 4) { setTimeout(() => { if(pin !== currentAdminPin) { pin = ""; updateDots(); } }, 350); }
+        };
+        window.delPin = () => { pin = pin.slice(0,-1); updateDots(); };
+
+        function updateDots() {
+            document.querySelectorAll('.dot').forEach((d,i) => { i < pin.length ? d.classList.add('filled') : d.classList.remove('filled'); });
+        }
+
+        window.navTo = (id) => {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`sec-${id}`).classList.add('active');
+        }
+
+        function initAdmin() {
+            onValue(ref(db, 'users'), s => {
+                const d = s.val();
+                if(d) {
+                    allUsers = Object.entries(d).map(([k,v]) => ({ uid:k, ...v }));
+                    document.getElementById('stat-users').innerText = allUsers.length;
+                    renderUsers(allUsers);
+                }
+            });
+            loadCategories();
+            loadMatches();
+            loadDeposits();
+            loadWithdrawals();
+            loadSettings();
+            loadSliders();
+            loadPromoCodes();
+            onValue(ref(db, 'match_participants'), s => { allParticipants = s.val() || {}; });
+        }
+
+        // ===== CATEGORIES =====
+        function loadCategories() {
+            onValue(ref(db, 'categories'), s => {
+                const list = document.getElementById('category-list');
+                list.innerHTML = "";
+                const d = s.val();
+                allCategories = [];
+                if(!d) return list.innerHTML = "<div style='text-align:center;color:var(--text-muted);padding:30px;'>No categories</div>";
+                Object.entries(d).forEach(([k,c]) => {
+                    allCategories.push({ id:k, name:c.name });
+                    list.innerHTML += `
+                        <div class="flat-card">
+                            <div class="cat-card-row">
+                                <img src="${c.img}" class="cat-img" onerror="this.src='https://via.placeholder.com/50/2a2a3a/6C63FF?text=G'">
+                                <div class="cat-info"><div class="fc-title">${c.name}</div><div style="font-size:10px;color:var(--text-muted);">${k}</div></div>
+                                <div class="cat-actions">
+                                    <button class="btn btn-primary" style="padding:8px;" onclick="editCategory('${k}')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-danger" style="padding:8px;" onclick="deleteCategory('${k}')"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
+        window.addCategory = async () => {
+            const { value: f } = await Swal.fire({
+                title: 'Add Category',
+                html: `<input id="cat-name" class="swal2-input" placeholder="Name"><input id="cat-img" class="swal2-input" placeholder="Image URL">`,
+                confirmButtonText: 'Add',
+                preConfirm: () => ({ name: document.getElementById('cat-name').value, img: document.getElementById('cat-img').value })
+            });
+            if(f && f.name) { push(ref(db, 'categories'), f); Swal.fire({ icon:'success', timer:1000, showConfirmButton:false }); }
+        };
+
+        window.editCategory = async (k) => {
+            const snap = await get(ref(db, `categories/${k}`));
+            const c = snap.val();
+            const { value: f } = await Swal.fire({
+                title: 'Edit Category',
+                html: `<input id="cat-name" class="swal2-input" value="${c.name}"><input id="cat-img" class="swal2-input" value="${c.img}">`,
+                confirmButtonText: 'Update',
+                preConfirm: () => ({ name: document.getElementById('cat-name').value, img: document.getElementById('cat-img').value })
+            });
+            if(f) { update(ref(db, `categories/${k}`), f); Swal.fire({ icon:'success', timer:1000, showConfirmButton:false }); }
+        };
+
+        window.deleteCategory = (k) => {
+            Swal.fire({ title:'Delete?', icon:'warning', showCancelButton:true }).then(r => { if(r.isConfirmed) remove(ref(db, `categories/${k}`)); });
+        };
+
+        // ===== MATCHES =====
+        function loadMatches() {
+            onValue(ref(db, 'matches'), s => {
+                const list = document.getElementById('match-list');
+                list.innerHTML = "";
+                const d = s.val();
+                allMatches = [];
+                if(!d) return list.innerHTML = "<div style='text-align:center;color:var(--text-muted);padding:30px;'>No matches</div>";
+                Object.entries(d).reverse().forEach(([k,m]) => {
+                    allMatches.push({ dbKey:k, ...m });
+                    let tag = m.status === 'Upcoming' ? 'tag-yellow' : m.status === 'Ongoing' ? 'tag-blue' : 'tag-green';
+                    let typeBadge = m.type === 'Solo' || m.type === 'Duo' || m.type === 'Squad' ? 'BR' :
+                        m.type === 'CS' || m.type === 'Clash Squad' ? 'CS' : 'Lone Wolf';
+                    list.innerHTML += `
+                        <div class="flat-card">
+                            <div class="fc-header">
+                                <div class="fc-title">${m.title}</div>
+                                <div class="fc-tag ${tag}">${m.status}</div>
+                            </div>
+                            <div style="font-size:13px;color:var(--text-muted);">
+                                ${m.map} · <span class="match-type-badge ${typeBadge === 'BR' ? 'br' : typeBadge === 'CS' ? 'cs' : 'lone'}">${typeBadge}</span> · ${m.type}
+                            </div>
+                            <div style="display:flex;gap:12px;font-size:13px;font-weight:700;margin:6px 0;">
+                                <span style="color:var(--success);">Entry ৳${m.entry}</span>
+                                <span style="color:var(--warning);">Prize ৳${m.total_prize}</span>
+                                <span style="color:var(--neon);">Per Kill ৳${m.per_kill || 10}</span>
+                                <span style="color:#33B5E5;">${m.joined||0}/${m.total}</span>
+                            </div>
+                            <div class="fc-actions">
+                                <button class="btn btn-primary" onclick="editMatch('${k}')"><i class="fas fa-cog"></i> Manage</button>
+                                <button class="btn btn-gold" onclick="openPrizeDistribution('${k}')"><i class="fas fa-trophy"></i> Prize/Stats</button>
+                                <button class="btn btn-danger" onclick="deleteMatch('${k}')"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
+        window.createMatchPopup = async () => {
+            let catOpt = allCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            const { value: f } = await Swal.fire({
+                title: 'Create New Match',
+                width: 600,
+                html: `
+                    <div style="text-align:left;">
+                        <label class="form-label">Title</label><input id="m-title" class="swal2-input" placeholder="Match title">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+                            <div><label class="form-label">Date</label><input id="m-date" type="date" class="swal2-input"></div>
+                            <div><label class="form-label">Time</label><input id="m-time" type="time" class="swal2-input"></div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+                            <div><label class="form-label">Type</label>
+                                <select id="m-type" class="swal2-select">
+                                    <option value="Solo">Solo (BR)</option>
+                                    <option value="Duo">Duo (BR)</option>
+                                    <option value="Squad">Squad (BR)</option>
+                                    <option value="CS">Clash Squad (CS)</option>
+                                    <option value="Lone Wolf">Lone Wolf (1v1)</option>
+                                </select>
+                            </div>
+                            <div><label class="form-label">Map</label><input id="m-map" class="swal2-input" placeholder="Bermuda"></div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+                            <div><label class="form-label">Entry Fee</label><input id="m-entry" type="number" class="swal2-input"></div>
+                            <div><label class="form-label">Total Prize</label><input id="m-prize" type="number" class="swal2-input"></div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+                            <div><label class="form-label">Per Kill (TK)</label><input id="m-kill" type="number" class="swal2-input" value="10"></div>
+                            <div><label class="form-label">Total Slots</label><input id="m-total" type="number" class="swal2-input" value="48"></div>
+                        </div>
+                        <label class="form-label" style="margin-top:12px;">Category</label>
+                        <select id="m-cat" class="swal2-select">${catOpt}</select>
+                    </div>`,
+                confirmButtonText: 'Create',
+                preConfirm: () => {
+                    const date = document.getElementById('m-date').value, time = document.getElementById('m-time').value;
+                    if(!date || !time) return Swal.showValidationMessage('Date & time required');
+                    const dObj = new Date(`${date}T${time}`);
+                    return {
+                        title: document.getElementById('m-title').value,
+                        time: dObj.toLocaleDateString('en-US',{day:'numeric',month:'short'})+' - '+dObj.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}),
+                        type: document.getElementById('m-type').value,
+                        map: document.getElementById('m-map').value,
+                        entry: parseInt(document.getElementById('m-entry').value) || 0,
+                        total_prize: parseInt(document.getElementById('m-prize').value) || 0,
+                        per_kill: parseInt(document.getElementById('m-kill').value) || 10,
+                        total: parseInt(document.getElementById('m-total').value) || 48,
+                        categoryId: document.getElementById('m-cat').value,
+                        status: 'Upcoming',
+                        timestamp: dObj.getTime()
+                    };
+                }
+            });
+            if(f) { push(ref(db, 'matches'), f); Swal.fire({ icon:'success', timer:1200, showConfirmButton:false }); }
+        };
+
+        window.deleteMatch = (k) => {
+            Swal.fire({ title:'Delete?', icon:'warning', showCancelButton:true }).then(r => { if(r.isConfirmed) remove(ref(db, `matches/${k}`)); });
+        };
+
+        window.editMatch = async (k) => {
+            const snap = await get(ref(db, `matches/${k}`));
+            const m = snap.val();
+            const { value: f } = await Swal.fire({
+                title: 'Manage Match',
+                html: `
+                    <label class="form-label">Status</label>
+                    <select id="e-status" class="swal2-select">
+                        <option ${m.status=='Upcoming'?'selected':''}>Upcoming</option>
+                        <option ${m.status=='Ongoing'?'selected':''}>Ongoing</option>
+                        <option ${m.status=='Finished'?'selected':''}>Finished</option>
+                    </select>
+                    <label class="form-label" style="margin-top:12px;">Per Kill (TK)</label>
+                    <input id="e-kill" type="number" class="swal2-input" value="${m.per_kill || 10}">
+                    <label class="form-label" style="margin-top:12px;">Room ID</label>
+                    <input id="e-room" class="swal2-input" value="${m.room_id||''}">
+                    <label class="form-label">Room Pass</label>
+                    <input id="e-pass" class="swal2-input" value="${m.room_pass||''}">
+                    <label class="form-label">Prize Desc</label>
+                    <textarea id="e-desc" class="swal2-textarea">${m.prize_desc||''}</textarea>`,
+                confirmButtonText: 'Update',
+                preConfirm: () => ({
+                    status: document.getElementById('e-status').value,
+                    per_kill: parseInt(document.getElementById('e-kill').value) || 10,
+                    room_id: document.getElementById('e-room').value,
+                    room_pass: document.getElementById('e-pass').value,
+                    prize_desc: document.getElementById('e-desc').value
+                })
+            });
+            if(f) { update(ref(db, `matches/${k}`), f); Swal.fire({ icon:'success', timer:1000, showConfirmButton:false }); }
+        };
+
+        // ============================================================
+        // ========== PRIZE DISTRIBUTION WITH AUTO BALANCE UPDATE ======
+        // ============================================================
+        window.openPrizeDistribution = async (matchId) => {
+            const match = allMatches.find(m => m.dbKey === matchId);
+            if(!match) return Swal.fire('Error', 'Match not found', 'error');
+
+            const existingParts = allParticipants[matchId] ? Object.values(allParticipants[matchId]) : [];
+            let currentParts = existingParts.map(p => ({ ...p }));
+
+            const isBR = match.type === 'Solo' || match.type === 'Duo' || match.type === 'Squad';
+            const isCS = match.type === 'CS' || match.type === 'Clash Squad';
+            const isLoneWolf = match.type === 'Lone Wolf' || match.type === '1v1';
+            const perKill = match.per_kill || 10;
+
+            function renderPrizeUI() {
+                const parts = currentParts;
+                let html = `
+                    <div style="text-align:left;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                            <div>
+                                <strong style="color:white;font-size:16px;">${match.title}</strong>
+                                <span class="match-type-badge ${isBR ? 'br' : isCS ? 'cs' : 'lone'}" style="margin-left:8px;">
+                                    ${isBR ? 'BR' : isCS ? 'CS' : 'Lone Wolf'}
+                                </span>
+                            </div>
+                            <div style="font-size:13px;color:var(--text-muted);">
+                                Per Kill: <span style="color:var(--neon);font-weight:700;">${perKill} TK</span>
+                            </div>
+                        </div>
+
+                        <div class="prize-config">
+                            <div class="config-item">
+                                <label>Kill Rate (TK)</label>
+                                <input type="number" id="prize-per-kill" value="${perKill}" min="0" oninput="recalculateAll()">
+                            </div>
+                            <div class="config-item">
+                                <label>Top 5 Bonus (TK)</label>
+                                <input type="number" id="prize-top5-bonus" value="20" min="0" oninput="recalculateAll()">
+                            </div>
+                        </div>
+
+                        <div class="rank-prize-table">
+                            <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:6px;">🏆 Rank Prizes (Top 5)</div>
+                            ${Object.entries(RANK_PRIZES).map(([rank, prize]) => `
+                                <div class="rp-row">
+                                    <span class="rp-rank">#${rank}</span>
+                                    <span class="rp-label">${rank === 1 ? '🥇 Winner' : rank === 2 ? '🥈 Runner' : rank === 3 ? '🥉 Third' : `${rank}th Position`}</span>
+                                    <span class="rp-amount">${prize} TK</span>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 6px 0;">
+                            <span style="font-weight:700;color:var(--text-muted);font-size:13px;">👥 Players (${parts.length})</span>
+                            <button class="add-player-btn" onclick="addNewPlayer()">
+                                <i class="fas fa-plus-circle"></i> Add Player
+                            </button>
+                        </div>
+
+                        <div class="prize-container" id="prize-container">
+                            <div class="prize-row header">
+                                <span>#</span>
+                                <span>Game ID</span>
+                                <span>Kills</span>
+                                <span>Rank</span>
+                                <span>Top5</span>
+                                <span>Total</span>
+                                <span></span>
+                            </div>`;
+
+                let playersHTML = '';
+                let totalPrize = 0;
+
+                parts.forEach((p, idx) => {
+                    const kills = p.kills || 0;
+                    const rank = p.rank || 0;
+                    const isTop5 = p.isTop5 || false;
+                    let prize = 0;
+                    const killRate = parseInt(document.getElementById('prize-per-kill')?.value) || perKill;
+                    const top5Bonus = parseInt(document.getElementById('prize-top5-bonus')?.value) || 20;
+
+                    if(isBR) {
+                        prize = kills * killRate;
+                        if(isTop5 && rank > 0 && rank <= 5) prize += RANK_PRIZES[rank] || 0;
+                        else if(isTop5) prize += RANK_PRIZES[5] || top5Bonus;
+                    } else if(isCS) {
+                        if(isTop5 && rank > 0 && rank <= 5) prize += RANK_PRIZES[rank] || 0;
+                        else if(isTop5) prize += RANK_PRIZES[5] || top5Bonus;
+                    } else if(isLoneWolf) {
+                        if(isTop5 && rank === 1) prize += RANK_PRIZES[1] || 100;
+                        else if(isTop5) prize += 50;
+                    }
+
+                    totalPrize += prize;
+                    const displayName = p.ign || 'Unknown';
+
+                    playersHTML += `
+                        <div class="prize-row" data-idx="${idx}">
+                            <span>${idx+1}</span>
+                            <span class="p-name" title="${displayName}">${displayName}</span>
+                            <input type="number" class="p-kill-input" id="kill-${idx}" value="${kills}" min="0" oninput="updatePrizeTotal(${idx})">
+                            <input type="number" class="p-rank-input" id="rank-${idx}" value="${rank}" min="0" max="50" oninput="updatePrizeTotal(${idx})">
+                            <input type="checkbox" class="p-top5-check" id="top5-${idx}" ${isTop5?'checked':''} onchange="updatePrizeTotal(${idx})">
+                            <span class="p-total" id="total-${idx}">${prize} TK</span>
+                            <button class="remove-player-btn" onclick="removePlayer(${idx})"><i class="fas fa-times"></i></button>
+                        </div>`;
+                });
+
+                html += playersHTML;
+                html += `
+                        </div>
+                        <div class="prize-summary">
+                            <span class="total-label">💰 Total Prize Distribution</span>
+                            <span class="total-amount" id="prize-total-sum">${totalPrize} TK</span>
+                        </div>
+                        <div class="prize-actions">
+                            <button class="btn btn-success" onclick="savePrizeDistribution('${matchId}')" style="flex:1;padding:14px;">
+                                <i class="fas fa-save"></i> Save & Distribute
+                            </button>
+                            <button class="btn btn-danger" onclick="Swal.close()" style="flex:1;padding:14px;">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>`;
+
+                const container = document.querySelector('.swal2-html-container');
+                if(container) {
+                    container.innerHTML = html;
+                }
+                updateTotalPrize();
+            }
+
+            window.recalculateAll = () => {
+                const parts = currentParts;
+                parts.forEach((p, idx) => {
+                    updatePrizeTotal(idx);
+                });
+            };
+
+            window.addNewPlayer = () => {
+                currentParts.push({
+                    ign: 'New Game ID',
+                    joinedBy: '',
+                    kills: 0,
+                    rank: 0,
+                    isTop5: false,
+                    win: 0
+                });
+                renderPrizeUI();
+            };
+
+            window.removePlayer = (idx) => {
+                currentParts.splice(idx, 1);
+                renderPrizeUI();
+            };
+
+            window.updatePrizeTotal = (idx) => {
+                const killsInput = document.getElementById(`kill-${idx}`);
+                const rankInput = document.getElementById(`rank-${idx}`);
+                const top5Check = document.getElementById(`top5-${idx}`);
+                const totalSpan = document.getElementById(`total-${idx}`);
+
+                if(!killsInput || !rankInput || !top5Check || !totalSpan) return;
+
+                const kills = parseInt(killsInput.value) || 0;
+                const rank = parseInt(rankInput.value) || 0;
+                const isTop5 = top5Check.checked;
+                const killRate = parseInt(document.getElementById('prize-per-kill')?.value) || perKill;
+                const top5Bonus = parseInt(document.getElementById('prize-top5-bonus')?.value) || 20;
+
+                let prize = 0;
+
+                if(isBR) {
+                    prize = kills * killRate;
+                    if(isTop5 && rank > 0 && rank <= 5) prize += RANK_PRIZES[rank] || 0;
+                    else if(isTop5) prize += RANK_PRIZES[5] || top5Bonus;
+                } else if(isCS) {
+                    if(isTop5 && rank > 0 && rank <= 5) prize += RANK_PRIZES[rank] || 0;
+                    else if(isTop5) prize += RANK_PRIZES[5] || top5Bonus;
+                } else if(isLoneWolf) {
+                    if(isTop5 && rank === 1) prize += RANK_PRIZES[1] || 100;
+                    else if(isTop5) prize += 50;
+                }
+
+                totalSpan.innerText = prize + ' TK';
+                if(currentParts[idx]) {
+                    currentParts[idx].kills = kills;
+                    currentParts[idx].rank = rank;
+                    currentParts[idx].isTop5 = isTop5;
+                    currentParts[idx].win = prize;
+                }
+                updateTotalPrize();
+            };
+
+            function updateTotalPrize() {
+                let total = 0;
+                document.querySelectorAll('.prize-row .p-total').forEach(el => {
+                    const val = parseInt(el.innerText) || 0;
+                    total += val;
+                });
+                const sumEl = document.getElementById('prize-total-sum');
+                if(sumEl) sumEl.innerText = total + ' TK';
+            }
+
+            // ===== SAVE PRIZE DISTRIBUTION WITH AUTO BALANCE UPDATE =====
+            window.savePrizeDistribution = async (matchId) => {
+                let updates = {};
+                let totalPrize = 0;
+                let participantUpdates = [];
+
+                currentParts.forEach((p, idx) => {
+                    const killsInput = document.getElementById(`kill-${idx}`);
+                    const rankInput = document.getElementById(`rank-${idx}`);
+                    const top5Check = document.getElementById(`top5-${idx}`);
+
+                    if(!killsInput || !rankInput || !top5Check) return;
+
+                    const kills = parseInt(killsInput.value) || 0;
+                    const rank = parseInt(rankInput.value) || 0;
+                    const isTop5 = top5Check.checked;
+                    const prize = parseInt(document.getElementById(`total-${idx}`)?.innerText) || 0;
+
+                    totalPrize += prize;
+                    const ign = p.ign || 'Unknown';
+                    const uid = p.joinedBy || '';
+
+                    let key = Object.keys(allParticipants[matchId]).find(k =>
+                        allParticipants[matchId][k].ign === ign &&
+                        allParticipants[matchId][k].joinedBy === uid
+                    );
+
+                    if(!key && uid) {
+                        const newKey = push(ref(db, `match_participants/${matchId}`)).key;
+                        key = newKey;
+                    }
+
+                    if(key) {
+                        updates[`${matchId}/${key}/kills`] = kills;
+                        updates[`${matchId}/${key}/rank`] = rank;
+                        updates[`${matchId}/${key}/isTop5`] = isTop5;
+                        updates[`${matchId}/${key}/win`] = prize;
+                        updates[`${matchId}/${key}/ign`] = ign;
+                        updates[`${matchId}/${key}/joinedBy`] = uid;
+
+                        participantUpdates.push({
+                            key: key,
+                            ign: ign,
+                            joinedBy: uid,
+                            kills: kills,
+                            rank: rank,
+                            isTop5: isTop5,
+                            win: prize
+                        });
+                    }
+                });
+
+                if(Object.keys(updates).length === 0) return Swal.fire('Error', 'No updates to save', 'error');
+
+                try {
+                    // Update match participants
+                    await update(ref(db, 'match_participants'), updates);
+                    await update(ref(db, `matches/${matchId}`), { status: 'Finished' });
+
+                    // ===== AUTO UPDATE USER BALANCE (Winning) =====
+                    const userPrizeMap = {};
+                    participantUpdates.forEach(p => {
+                        const uid = p.joinedBy;
+                        if(uid && !userPrizeMap[uid]) userPrizeMap[uid] = 0;
+                        if(uid) userPrizeMap[uid] += p.win;
+                    });
+
+                    for(const [uid, amount] of Object.entries(userPrizeMap)) {
+                        if(amount > 0) {
+                            const userRef = ref(db, `users/${uid}`);
+                            const snap = await get(userRef);
+                            const userData = snap.val();
+                            if(userData) {
+                                const currentWinning = userData.winning || 0;
+                                await update(userRef, { winning: currentWinning + amount });
+                                console.log(`✅ Added ${amount} TK to ${userData.username || uid} (Winning: ${currentWinning} -> ${currentWinning + amount})`);
+                            }
+                        }
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '✅ Prize Distributed!',
+                        text: `Total: ${totalPrize} TK distributed to ${Object.keys(userPrizeMap).length} players.`,
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                    Swal.close();
+                    loadMatches();
+
+                } catch(e) {
+                    Swal.fire('Error', e.message, 'error');
+                }
+            };
+
+            window._prizeData = { matchId, parts: currentParts, perKill, isBR, isCS, isLoneWolf };
+            window.currentParts = currentParts;
+            window.renderPrizeUI = renderPrizeUI;
+
+            Swal.fire({
+                title: '🏆 Prize Distribution',
+                html: '<div style="text-align:center;padding:20px;color:var(--text-muted);">Loading...</div>',
+                showConfirmButton: false,
+                width: 750,
+                background: '#16161f',
+                didOpen: () => {
+                    renderPrizeUI();
+                }
+            });
+        };
+
+        // ============================================================
+        // ========== SMS AUTO READ =====================================
+        // ============================================================
+        if(typeof Android !== 'undefined') {
+            window.onMessageReceived = function(messageBody) {
+                const amount = messageBody.match(/(\d+)\s*Taka/i);
+                const trxId = messageBody.match(/TrxID:\s*(\w+)/i);
+                if(amount && trxId) {
+                    document.getElementById('myBalance').innerHTML = amount[1];
+                    console.log('টাকা:', amount[1], 'আইডি:', trxId[1]);
+                    Swal.fire({
+                        title: '📱 SMS Detected',
+                        text: `Amount: ${amount[1]} TK | TrxID: ${trxId[1]}`,
+                        icon: 'info',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                }
+            };
+        }
+
+        // ===== DEPOSITS =====
+        function loadDeposits() {
+            onValue(ref(db, 'transactions'), s => {
+                const d = s.val();
+                pendingDeposits = [];
+                if(d) {
+                    Object.keys(d).forEach(uid => {
+                        Object.entries(d[uid]).forEach(([tid, t]) => {
+                            if(t.type === 'Deposit' && t.status === 'Pending') pendingDeposits.push({ uid, tid, ...t });
+                        });
+                    });
+                }
+                const badge = document.getElementById('deposit-badge');
+                if(pendingDeposits.length > 0) { badge.style.display = 'flex'; badge.innerText = pendingDeposits.length; }
+                else badge.style.display = 'none';
+                renderDeposits();
+            });
+        }
+
+        function renderDeposits() {
+            const list = document.getElementById('deposit-list');
+            list.innerHTML = "";
+            if(pendingDeposits.length === 0) return list.innerHTML = "<div style='text-align:center;color:var(--text-muted);padding:30px;'>No pending deposits</div>";
+            pendingDeposits.forEach(p => {
+                list.innerHTML += `
+                    <div class="flat-card" style="border-left:3px solid var(--deposit);">
+                        <div class="fc-header"><div class="fc-title" style="color:var(--deposit);">৳${p.amount}</div><div class="fc-tag tag-orange">PENDING</div></div>
+                        <div class="fc-detail"><span>User:</span><span class="fc-value">${getUserName(p.uid)}</span></div>
+                        <div class="fc-detail"><span>Method:</span><span class="fc-value">${p.method}</span></div>
+                        <div class="fc-detail"><span>Number:</span><span class="fc-value">${p.number}</span></div>
+                        <div class="fc-detail"><span>Trx:</span><span class="fc-value">${p.trxId||'N/A'}</span></div>
+                        <div class="fc-actions">
+                            <button class="btn btn-success" onclick="approveDeposit('${p.uid}','${p.tid}',${p.amount})">Approve</button>
+                            <button class="btn btn-danger" onclick="rejectDeposit('${p.uid}','${p.tid}')">Reject</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        window.approveDeposit = async (uid, tid, amt) => {
+            const r = await Swal.fire({ title: `Approve ৳${amt}?`, icon:'question', showCancelButton:true });
+            if(r.isConfirmed) {
+                const snap = await get(ref(db, `users/${uid}`));
+                const u = snap.val();
+                await update(ref(db, `users/${uid}`), { deposit: (u.deposit || 0) + amt });
+                await update(ref(db, `transactions/${uid}/${tid}`), { status: 'Success' });
+                Swal.fire({ icon:'success', title:'Approved', timer:1200, showConfirmButton:false });
+            }
+        };
+
+        window.rejectDeposit = async (uid, tid) => {
+            await update(ref(db, `transactions/${uid}/${tid}`), { status: 'Rejected' });
+            Swal.fire({ icon:'info', title:'Rejected', timer:1000, showConfirmButton:false });
+        };
+
+        // ===== WITHDRAWALS =====
+        function loadWithdrawals() {
+            onValue(ref(db, 'transactions'), s => {
+                const list = document.getElementById('withdraw-list');
+                list.innerHTML = "";
+                const d = s.val();
+                if(!d) return list.innerHTML = "<div style='text-align:center;color:var(--text-muted);padding:30px;'>No transactions</div>";
+                let pend = [];
+                Object.keys(d).forEach(uid => {
+                    Object.entries(d[uid]).forEach(([tid, t]) => {
+                        if(t.type === 'Withdraw' && t.status === 'Pending') pend.push({ uid, tid, ...t });
+                    });
+                });
+                if(pend.length === 0) return list.innerHTML = "<div style='text-align:center;color:var(--text-muted);padding:30px;'>No pending withdrawals</div>";
+                pend.forEach(p => {
+                    list.innerHTML += `
+                        <div class="flat-card" style="border-left:3px solid var(--warning);">
+                            <div class="fc-header"><div class="fc-title" style="color:var(--warning);">৳${p.amount}</div><div class="fc-tag tag-yellow">PENDING</div></div>
+                            <div class="fc-detail"><span>User:</span><span class="fc-value">${getUserName(p.uid)}</span></div>
+                            <div class="fc-detail"><span>Method:</span><span class="fc-value">${p.method}</span></div>
+                            <div class="fc-detail"><span>Number:</span><span class="fc-value">${p.number}</span></div>
+                            <div class="fc-actions">
+                                <button class="btn btn-success" onclick="approveWithdraw('${p.uid}','${p.tid}')">Approve</button>
+                                <button class="btn btn-danger" onclick="rejectWithdraw('${p.uid}','${p.tid}',${p.amount})">Refund</button>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
+        window.approveWithdraw = async (uid, tid) => {
+            await update(ref(db, `transactions/${uid}/${tid}`), { status: 'Success' });
+            Swal.fire({ icon:'success', title:'Approved', timer:1200, showConfirmButton:false });
+        };
+
+        window.rejectWithdraw = async (uid, tid, amt) => {
+            const snap = await get(ref(db, `users/${uid}`));
+            const u = snap.val();
+            await update(ref(db, `users/${uid}`), { winning: (u.winning || 0) + amt });
+            await update(ref(db, `transactions/${uid}/${tid}`), { status: 'Refunded' });
+            Swal.fire({ icon:'info', title:'Refunded', timer:1200, showConfirmButton:false });
+        };
+
+        // ===== PROMO CODES =====
+        function loadPromoCodes() {
+            onValue(ref(db, 'promo_codes'), s => {
+                const list = document.getElementById('promo-list');
+                list.innerHTML = "";
+                const d = s.val();
+                if(!d) return list.innerHTML = "<div style='text-align:center;color:var(--text-muted);padding:30px;'>No promo codes</div>";
+                Object.entries(d).forEach(([k,p]) => {
+                    const used = p.usedBy ? Object.keys(p.usedBy).length : 0;
+                    const max = p.maxUses || 6;
+                    list.innerHTML += `
+                        <div class="flat-card">
+                            <div class="fc-header">
+                                <div class="fc-title" style="color:var(--warning);">${k}</div>
+                                <div class="fc-tag ${used >= max ? 'tag-red' : 'tag-green'}">${used}/${max}</div>
+                            </div>
+                            <div style="font-size:13px;color:var(--text-muted);">Bonus: ৳${p.bonus||5} · Creator: ${p.creator||'Admin'}</div>
+                            ${p.usedBy ? `<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Used by: ${Object.values(p.usedBy).join(', ')}</div>` : ''}
+                            <button class="btn btn-danger" style="width:100%;margin-top:10px;padding:8px;" onclick="deletePromo('${k}')">Delete</button>
+                        </div>`;
+                });
+            });
+        }
+
+        window.createPromoCode = async () => {
+            const { value: f } = await Swal.fire({
+                title: 'Create Promo Code',
+                html: `
+                    <label class="form-label">Code</label><input id="p-code" class="swal2-input" placeholder="e.g. YT2025">
+                    <label class="form-label">Bonus (TK)</label><input id="p-bonus" type="number" class="swal2-input" value="5">
+                    <label class="form-label">Max Uses</label><input id="p-max" type="number" class="swal2-input" value="6">
+                    <label class="form-label">Creator</label><input id="p-creator" class="swal2-input" placeholder="YouTube channel name">`,
+                confirmButtonText: 'Create',
+                preConfirm: () => ({
+                    code: document.getElementById('p-code').value.toUpperCase().trim(),
+                    bonus: parseInt(document.getElementById('p-bonus').value) || 5,
+                    maxUses: parseInt(document.getElementById('p-max').value) || 6,
+                    creator: document.getElementById('p-creator').value || 'Admin'
+                })
+            });
+            if(f && f.code) {
+                const refPath = `promo_codes/${f.code}`;
+                const snap = await get(ref(db, refPath));
+                if(snap.exists()) return Swal.fire('Error', 'Code already exists', 'error');
+                await set(ref(db, refPath), { bonus: f.bonus, maxUses: f.maxUses, creator: f.creator, usedBy: {} });
+                Swal.fire({ icon:'success', title:'Created!', timer:1200, showConfirmButton:false });
+            }
+        };
+
+        window.deletePromo = (k) => {
+            Swal.fire({ title:'Delete?', icon:'warning', showCancelButton:true }).then(r => {
+                if(r.isConfirmed) remove(ref(db, `promo_codes/${k}`));
+            });
+        };
+
+        // ===== USERS =====
+        function getUserName(uid) {
+            const u = allUsers.find(x => x.uid === uid);
+            return u ? u.username || u.email || uid : uid;
+        }
+
+        function renderUsers(users) {
+            const list = document.getElementById('user-list');
+            list.innerHTML = "";
+            users.forEach(u => {
+                const status = u.status || 'active';
+                const statusBadge = status === 'active' ? 'active' : 'banned';
+                list.innerHTML += `
+                    <div class="flat-card">
+                        <div class="fc-header">
+                            <div class="fc-title">${u.username || 'No Name'}</div>
+                            <div><span class="status-badge ${statusBadge}">${status}</span></div>
+                        </div>
+                        <div class="fc-detail"><span>Email:</span><span class="fc-value">${u.email}</span></div>
+                        <div class="fc-detail"><span>UID:</span><span class="fc-value">${u.uid.slice(0,12)}</span></div>
+                        <div style="display:flex;justify-content:space-between;margin-top:10px;background:rgba(255,255,255,0.03);padding:10px;border-radius:10px;">
+                            <div style="text-align:center;"><div style="font-size:10px;color:var(--text-muted);">Deposit</div><div style="color:var(--success);font-weight:700;">৳${u.deposit||0}</div></div>
+                            <div style="text-align:center;"><div style="font-size:10px;color:var(--text-muted);">Winning</div><div style="color:var(--warning);font-weight:700;">৳${u.winning||0}</div></div>
+                        </div>
+                        <div class="fc-actions">
+                            <button class="btn btn-primary" style="padding:8px;" onclick="editUserBalance('${u.uid}',${u.deposit||0},${u.winning||0})">Edit Balance</button>
+                            ${status === 'active' ?
+                                `<button class="btn btn-ban" onclick="toggleUserStatus('${u.uid}','banned')"><i class="fas fa-ban"></i> Ban</button>` :
+                                `<button class="btn btn-unban" onclick="toggleUserStatus('${u.uid}','active')"><i class="fas fa-check"></i> Unban</button>`
+                            }
+                        </div>
+                    </div>`;
+            });
+        }
+
+        window.filterUsers = () => {
+            const q = document.getElementById('user-search').value.toLowerCase();
+            renderUsers(allUsers.filter(u => (u.username || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q) || u.uid.includes(q)));
+        };
+
+        window.editUserBalance = async (uid, dep, win) => {
+            const { value: f } = await Swal.fire({
+                title: 'Edit Balance',
+                html: `<input id="b-dep" type="number" class="swal2-input" value="${dep}"><input id="b-win" type="number" class="swal2-input" value="${win}">`,
+                confirmButtonText: 'Save',
+                preConfirm: () => ({ deposit: parseInt(document.getElementById('b-dep').value), winning: parseInt(document.getElementById('b-win').value) })
+            });
+            if(f) { update(ref(db, `users/${uid}`), f); Swal.fire({ icon:'success', timer:1000, showConfirmButton:false }); }
+        };
+
+        window.toggleUserStatus = async (uid, status) => {
+            const action = status === 'banned' ? 'Ban' : 'Unban';
+            const r = await Swal.fire({
+                title: `${action} User?`,
+                text: `Are you sure you want to ${action.toLowerCase()} this user?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: status === 'banned' ? '#FF4444' : '#00C851',
+                confirmButtonText: `Yes, ${action}`
+            });
+            if(r.isConfirmed) {
+                await update(ref(db, `users/${uid}`), { status: status });
+                Swal.fire({ icon:'success', title:`${action}ned!`, timer:1200, showConfirmButton:false });
+                loadUsers();
+            }
+        };
+
+        // ===== SETTINGS =====
+        function loadSettings() {
+            onValue(ref(db, 'app_settings'), s => {
+                const d = s.val();
+                if(d) {
+                    document.getElementById('set-app-name').value = d.app_name || '';
+                    document.getElementById('set-app-logo').value = d.app_logo || '';
+                    document.getElementById('set-cat-title').value = d.category_title || 'FREE FIRE';
+                    document.getElementById('set-notice').value = d.notice || '';
+                    document.getElementById('set-popup').value = d.popup_text || '';
+                    document.getElementById('set-show-popup').value = d.show_popup ? 'true' : 'false';
+                    document.getElementById('set-bkash').value = d.bkash_number || '';
+                    document.getElementById('set-nagad').value = d.nagad_number || '';
+                    document.getElementById('set-rocket').value = d.rocket_number || '';
+                    document.getElementById('set-support').value = d.support_link || '';
+                    document.getElementById('set-shop').value = d.shop_link || '';
+                    document.getElementById('set-vid-add').value = d.how_to_add_money_link || '';
+                    document.getElementById('set-vid-join').value = d.how_to_play_link || '';
+                    document.getElementById('set-vid-room').value = d.how_to_get_room_id_link || '';
+                }
+            });
+        }
+
+        window.saveSettings = () => {
+            update(ref(db, 'app_settings'), {
+                app_name: document.getElementById('set-app-name').value,
+                app_logo: document.getElementById('set-app-logo').value,
+                category_title: document.getElementById('set-cat-title').value,
+                notice: document.getElementById('set-notice').value,
+                popup_text: document.getElementById('set-popup').value,
+                show_popup: document.getElementById('set-show-popup').value === 'true',
+                bkash_number: document.getElementById('set-bkash').value,
+                nagad_number: document.getElementById('set-nagad').value,
+                rocket_number: document.getElementById('set-rocket').value,
+                support_link: document.getElementById('set-support').value,
+                shop_link: document.getElementById('set-shop').value,
+                how_to_add_money_link: document.getElementById('set-vid-add').value,
+                how_to_play_link: document.getElementById('set-vid-join').value,
+                how_to_get_room_id_link: document.getElementById('set-vid-room').value
+            });
+            Swal.fire({ icon:'success', title:'Saved!', timer:1200, showConfirmButton:false });
+        };
+
+        // ===== SLIDERS =====
+        function loadSliders() {
+            onValue(ref(db, 'app_settings/banners'), s => {
+                const list = document.getElementById('slider-list');
+                list.innerHTML = "";
+                const d = s.val();
+                if(d) {
+                    Object.entries(d).forEach(([k,v]) => {
+                        list.innerHTML += `
+                            <div class="flat-card" style="display:flex;justify-content:space-between;align-items:center;padding:12px;">
+                                <img src="${v.img}" style="width:70px;height:40px;object-fit:cover;border-radius:8px;">
+                                <button class="btn btn-danger" style="padding:6px;" onclick="removeSlider('${k}')"><i class="fas fa-trash"></i></button>
+                            </div>`;
+                    });
+                }
+            });
+        }
+
+        window.addSlider = () => {
+            const img = document.getElementById('new-slider-img').value;
+            const link = document.getElementById('new-slider-link').value;
+            if(!img) return Swal.fire('Error', 'Image URL required', 'error');
+            push(ref(db, 'app_settings/banners'), { img, link });
+            document.getElementById('new-slider-img').value = '';
+            document.getElementById('new-slider-link').value = '';
+            Swal.fire({ icon:'success', timer:1000, showConfirmButton:false });
+        };
+
+        window.removeSlider = (k) => remove(ref(db, `app_settings/banners/${k}`));
+
+        // ===== NOTIFICATIONS =====
+        window.sendNotification = () => {
+            const title = document.getElementById('notif-title').value;
+            const body = document.getElementById('notif-body').value;
+            if(!title || !body) return Swal.fire('Error', 'Fill all fields', 'error');
+            push(ref(db, 'notifications'), { title, body, time: new Date().toLocaleString() });
+            Swal.fire({ icon:'success', title:'Sent!', timer:1000, showConfirmButton:false });
+            document.getElementById('notif-title').value = '';
+            document.getElementById('notif-body').value = '';
+        };
+
+        // ===== CHANGE PIN =====
+        window.changeAdminPinPopup = async () => {
+            const { value: newPin } = await Swal.fire({
+                title: 'Change Admin PIN',
+                input: 'text',
+                inputAttributes: { maxlength: 4, pattern: "[0-9]*", inputmode: "numeric" },
+                placeholder: '4-digit PIN',
+                confirmButtonText: 'Set',
+                inputValidator: v => { if(!v || v.length !== 4 || isNaN(v)) return 'Must be 4 digits'; }
+            });
+            if(newPin) {
+                update(ref(db, 'app_settings'), { admin_pin: newPin });
+                Swal.fire({ icon:'success', title:'PIN changed!', timer:1200, showConfirmButton:false });
+            }
+        };
+
+        console.log('✅ Admin Panel Ready - Full Features Active');
+        console.log('💰 Auto Balance Update on Prize Distribution Active');
+        console.log('👤 User Ban/Unban System Active');
+    </script>
+</body>
+</html>
